@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Goods System Control</title>
+  <style>
+    :root {
+      --bg-primary: #0f1117;
+      --bg-secondary: #1a1d27;
+      --bg-card: #22262f;
+      --bg-hover: #2c313d;
+      --accent: #6c63ff;
+      --accent-hover: #5a52e0;
+      --accent-glow: rgba(108, 99, 255, 0.25);
+      --text-primary: #e8e9ed;
+      --text-secondary: #9ea3b0;
+      --text-muted: #6b7084;
+      --border: #2e3344;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --shadow: 0 4px 24px rgba(0,0,0,0.35);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: 0.2s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Topbar ────────────────────────────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      white-space: nowrap;
+      color: var(--text-primary);
+    }
+
+    .topbar-logo svg {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .topbar-logo span {
+      display: none;
+    }
+
+    @media (min-width: 600px) {
+      .topbar-logo span { display: inline; }
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    /* ── Dropdown ──────────────────────────────────────────── */
+    .dropdown-wrap {
+      position: relative;
+    }
+
+    .dropdown-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+      white-space: nowrap;
+    }
+
+    .dropdown-btn:hover { background: var(--accent-hover); }
+
+    .dropdown-btn svg {
+      width: 18px;
+      height: 18px;
+      transition: transform var(--transition);
+    }
+
+    .dropdown-btn.open svg { transform: rotate(180deg); }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 300px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all var(--transition);
+      overflow: hidden;
+    }
+
+    .dropdown-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-group-label {
+      padding: 10px 16px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background var(--transition);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .dropdown-item:hover { background: var(--bg-hover); }
+
+    .dropdown-item .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dropdown-item.active .dot { background: var(--success); }
+    .dropdown-item:not(.active) .dot { background: var(--text-muted); }
+
+    .dropdown-item .label { flex: 1; }
+
+    .dropdown-item .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .dropdown-item.active .badge {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .dropdown-item:not(.active) .badge {
+      background: rgba(108, 99, 255, 0.15);
+      color: var(--accent);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .dropdown-footer {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .dropdown-footer button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .btn-open-all {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-open-all:hover { background: var(--accent-hover); }
+
+    .btn-close-all {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+    .btn-close-all:hover { background: rgba(239, 68, 68, 0.25); }
+
+    /* ── Layout toggle ────────────────────────────────────── */
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .icon-btn.active { border-color: var(--accent); color: var(--accent); }
+    .icon-btn svg { width: 18px; height: 18px; }
+
+    /* ── Empty state ──────────────────────────────────────── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 65px);
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.4;
+    }
+
+    .empty-state h2 {
+      font-size: 22px;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state p { font-size: 15px; }
+
+    /* ── Tiles container ─────────────────────────────────── */
+    .tiles-container {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* Grid layout — fixed columns so tiles can span */
+    .tiles-container.layout-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(340px, 1fr);
+    }
+
+    /* Rows layout */
+    .tiles-container.layout-rows {
+      grid-template-columns: 1fr;
+      grid-auto-rows: minmax(400px, 50vh);
+    }
+
+    /* Focus layout (single tile, full area) */
+    .tiles-container.layout-focus {
+      grid-template-columns: 1fr;
+      grid-auto-rows: minmax(500px, calc(100vh - 100px));
+    }
+
+    @media (max-width: 1200px) {
+      .tiles-container.layout-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .tiles-container.layout-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .tiles-container.layout-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 300px;
+      }
+    }
+
+    /* ── Tile width spans ──────────────────────────────────── */
+    .tile[data-col-span="2"] { grid-column: span 2; }
+    .tile[data-col-span="3"] { grid-column: span 3; }
+    .tile[data-col-span="4"] { grid-column: span 4; }
+
+    @media (max-width: 900px) {
+      .tile[data-col-span="3"],
+      .tile[data-col-span="4"] { grid-column: span 2; }
+    }
+
+    @media (max-width: 600px) {
+      .tile[data-col-span="2"],
+      .tile[data-col-span="3"],
+      .tile[data-col-span="4"] { grid-column: span 1; }
+    }
+
+    /* ── Tile ─────────────────────────────────────────────── */
+    .tile {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow var(--transition), border-color var(--transition), transform 0.15s ease;
+      position: relative;
+    }
+
+    .tile:hover {
+      border-color: rgba(108, 99, 255, 0.4);
+      box-shadow: 0 0 0 1px var(--accent-glow), var(--shadow);
+    }
+
+    .tile.dragging {
+      opacity: 0.5;
+      transform: scale(0.97);
+    }
+
+    .tile.drag-over {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .tile-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      flex-shrink: 0;
+    }
+
+    .tile-header:active { cursor: grabbing; }
+
+    .tile-color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tile-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tile-url {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    @media (max-width: 600px) {
+      .tile-url { display: none; }
+    }
+
+    .tile-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .tile-action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .tile-action-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .tile-action-btn.close-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .tile-action-btn svg { width: 16px; height: 16px; }
+
+    .tile-body {
+      flex: 1;
+      position: relative;
+      background: #fff;
+    }
+
+    .tile-body iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .tile-body .iframe-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: none;
+    }
+
+    .tile.dragging .iframe-overlay,
+    .tiles-container.is-dragging .iframe-overlay {
+      display: block;
+    }
+
+    .tile-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .tile-loading .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Resize edge handle (right side) ─────────────────── */
+    .tile-resize-edge {
+      position: absolute;
+      top: 0;
+      right: -6px;
+      width: 12px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .tile:hover .tile-resize-edge { opacity: 1; }
+
+    .tile-resize-edge::after {
+      content: '';
+      width: 4px;
+      height: 40px;
+      max-height: 30%;
+      border-radius: 2px;
+      background: var(--text-muted);
+      transition: background var(--transition), height var(--transition);
+    }
+
+    .tile-resize-edge:hover::after {
+      background: var(--accent);
+      height: 60px;
+    }
+
+    .tile.is-resizing {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+      z-index: 50;
+    }
+
+    .tile.is-resizing .tile-resize-edge { opacity: 1; }
+    .tile.is-resizing .tile-resize-edge::after { background: var(--accent); }
+
+    .tiles-container.is-resizing .iframe-overlay { display: block; }
+
+    /* ── Tile width badge ─────────────────────────────────── */
+    .tile-width-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(108, 99, 255, 0.15);
+      color: var(--accent);
+      font-weight: 600;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+
+    .tile-width-badge.default { display: none; }
+
+    /* ── Tile maximized ───────────────────────────────────── */
+    .tile.maximized {
+      position: fixed;
+      inset: 60px 0 0 0;
+      z-index: 999;
+      border-radius: 0;
+      border: none;
+    }
+
+    /* ── Scrollbar ────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ── Toast ─────────────────────────────────────────────── */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 14px;
+      box-shadow: var(--shadow);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translateY(10px); }
+    }
+
+    /* ── Tile enter animation ─────────────────────────────── */
+    .tile-enter {
+      animation: tileEnter 0.3s ease;
+    }
+
+    @keyframes tileEnter {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── Clippy ───────────────────────────────────────────── */
+    .clippy-wrap {
+      position: fixed;
+      bottom: 12px;
+      left: 12px;
+      z-index: 2000;
+    }
+
+    .clippy-btn {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--bg-card);
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      overflow: visible;
+    }
+
+    .clippy-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 28px rgba(108, 99, 255, 0.5);
+    }
+
+    .clippy-btn .clippy-img {
+      width: 85px;
+      height: auto;
+      margin-top: -16px;
+    }
+
+    .clippy-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      margin-bottom: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text-primary);
+      box-shadow: var(--shadow);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .clippy-btn:hover ~ .clippy-tooltip { opacity: 1; }
+
+    .clippy-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 22px;
+      width: 12px;
+      height: 12px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      transform: rotate(45deg);
+    }
+
+    /* ── Guide modal ──────────────────────────────────────── */
+    .guide-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .guide-overlay.open { display: flex; }
+
+    .guide-modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      max-width: 640px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      animation: guideIn 0.25s ease;
+    }
+
+    @keyframes guideIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .guide-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .guide-header .clippy-face { flex-shrink: 0; }
+
+    .guide-header h2 {
+      flex: 1;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .guide-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+    }
+
+    .guide-close:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .guide-close svg { width: 18px; height: 18px; }
+
+    .guide-body {
+      padding: 20px;
+      overflow-y: auto;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .guide-body h3 {
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 700;
+      margin: 20px 0 8px;
+    }
+
+    .guide-body h3:first-child { margin-top: 0; }
+
+    .guide-body ol, .guide-body ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    .guide-body li {
+      margin-bottom: 10px;
+    }
+
+    .guide-body .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .guide-body .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-bottom: 14px;
+    }
+
+    .guide-body .step p { margin: 0; }
+
+    .guide-body .warn {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: var(--warning);
+    }
+
+    .guide-body .warn-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    .guide-body .danger {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: var(--danger);
+    }
+
+    .guide-body .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Topbar ──────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+    </svg>
+    <span>Goods System Control</span>
+  </div>
+
+  <div class="topbar-actions">
+    <!-- Layout buttons -->
+    <button class="icon-btn active" data-layout="grid" title="Grid layout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </button>
+    <button class="icon-btn" data-layout="rows" title="Rows layout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/>
+        <rect x="3" y="17" width="18" height="4" rx="1"/>
+      </svg>
+    </button>
+    <button class="icon-btn" data-layout="focus" title="Focus layout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <polyline points="15 3 15 8 21 8"/>
+      </svg>
+    </button>
+
+    <!-- Dropdown -->
+    <div class="dropdown-wrap">
+      <button class="dropdown-btn" id="dropdownToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Sites
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="dropdown-menu" id="dropdownMenu"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main content ────────────────────────────────────────── -->
+<main>
+  <div class="empty-state" id="emptyState">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+    </svg>
+    <h2>No sites open</h2>
+    <p>Click "Sites" above to open your local services as tiles.</p>
+  </div>
+  <div class="tiles-container layout-grid" id="tilesContainer" style="display:none;"></div>
+</main>
+
+<!-- ── Toast container ────────────────────────────────────── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── Clippy ──────────────────────────────────────────────── -->
+<div class="clippy-wrap">
+  <button class="clippy-btn" id="clippyBtn" title="Gantry Guide">
+    <img class="clippy-img" src="clippy.png" alt="Clippy" />
+  </button>
+  <div class="clippy-tooltip">Bebop Gantry Operations Guide</div>
+</div>
+
+<!-- ── Guide Modal ─────────────────────────────────────────── -->
+<div class="guide-overlay" id="guideOverlay">
+  <div class="guide-modal">
+    <div class="guide-header">
+      <img src="clippy.png" alt="Clippy" style="width:32px; height:auto; flex-shrink:0;" />
+      <h2>Bebop Gantry Operations Guide</h2>
+      <button class="guide-close" id="guideClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="guide-body">
+
+      <h3>Startup Sequence</h3>
+
+      <div class="step"><span class="step-num">1</span><p><strong>Power on all systems.</strong> Wait ~10 seconds for drives and all CAN devices to boot up.</p></div>
+
+      <div class="step"><span class="step-num">2</span><p><strong>Verify CAN status</strong> at the top of the screen. If there are issues, click the CAN card to see details and reset the bus from there.</p></div>
+
+      <div class="step"><span class="step-num">3</span><p><strong>Turn on the hardware layer</strong> using the System card (to the right of CAN status). EtherCAT devices will come online and move into OP mode — this is slow (~5s per device). Watch for <strong>EC OP → CIA OP</strong>. Click on any device for diagnostics. Continue once everything is green (except Home and Enable).</p></div>
+
+      <h3>Homing</h3>
+
+      <div class="step"><span class="step-num">4</span><p><strong>Home devices in this order:</strong> Linear → Handles → Ext Door → Int Door → Gantry.</p></div>
+
+      <div class="warn">
+        <span class="warn-icon">⚠️</span>
+        <span><strong>Do NOT enable gantry drives until after homing is confirmed.</strong> The EtherCAT motor drivers have position-latching quirks. Gantry drives do not need to be enabled for homing.</span>
+      </div>
+
+      <p>As each device homes successfully, its status card outline turns green. Proceed once all are green.</p>
+
+      <h3>Control Panels</h3>
+
+      <div class="step"><span class="step-num">5</span><p>Click <strong>"Add Panel"</strong> (top right) and add: Low Level Controls, Mid Level, and High Level Actions. You can close the power panel but keep homing up. Any panel can be re-opened at any time.</p></div>
+
+      <div class="step"><span class="step-num">6</span><p><strong>Do a manual check with low level controls</strong> — start by closing the external door.</p></div>
+
+      <div class="danger">
+        <span class="warn-icon">🚨</span>
+        <span><strong>Low level controls bypass the state machine.</strong> They pass motor commands straight through and do NOT respect system state. Always verify the linear is in the correct position before using them.</span>
+      </div>
+
+      <p><strong>Mid level, high level, and operations actions</strong> DO use the transition state machine and will automatically position the linear correctly.</p>
+
+      <h3>Operations Tips</h3>
+
+      <ul>
+        <li><strong>"Pull Tote"</strong> for trough operations does NOT position the tote for tote-grabber pickup. You must also use <strong>"Position Tote"</strong> afterward (due to chained mid-level action structure).</li>
+        <li>To bring the tote grabber to the bottom, use the <strong>Operations panel → "Stage" button for Delivery flow</strong> (not Retrieval — that will fail trying to pick up a nonexistent tote).</li>
+        <li>Stick with <strong>High Level Actions</strong> and <strong>Operations</strong> panels for normal use.</li>
+      </ul>
+
+      <div class="section-divider"></div>
+
+      <h3>Failure Recovery</h3>
+
+      <ul>
+        <li><strong>Soft failures</strong> — You'll get a notification showing success or what went wrong. Usually you can re-run the action or continue. If stuck in an invalid state, use low level controls to walk it back.</li>
+        <li><strong>Handle failures</strong> — If handles fail during robot interaction, the system stops. Use low level controls to adjust handles at that position or move the gantry back to the transition point.</li>
+        <li><strong>Hard failures (gantry sync error)</strong> — Drives will go down. Contact Mac — these recoveries are not exposed on the site.</li>
+      </ul>
+
+      <div class="section-divider"></div>
+
+      <h3>Emergency Stop Procedure</h3>
+
+      <div class="danger">
+        <span class="warn-icon">🛑</span>
+        <span>
+          <strong>Priority order for stopping the system:</strong><br>
+          1. <strong>Gantry Enable/Disable</strong> — First go-to. Stops gantry commands immediately.<br>
+          2. <strong>Power button</strong> — Use if something like the linear is continuously pulling in and skipping.<br>
+          3. <strong>Cancel button</strong> (on Operations panel) — Attempts a software stop, but some motor commands may continue physically depending on the drive.
+        </span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ── Site definitions ─────────────────────────────────────
+  const SITES = [
+    { id: 'dev-svr', name: 'Dev Server', url: 'http://pipedream-io.tail1aaea.ts.net/goods/001/channel6/', group: 'Dev Server', color: '#f59e0b' },
+    { id: 'rs-p1',   name: 'Portal 1 — Rocksteady', url: 'http://g001-portal1-rocksteady:8000/', group: 'Rocksteady', color: '#6c63ff' },
+    { id: 'rs-p2',   name: 'Portal 2 — Rocksteady', url: 'http://g001-portal2-rocksteady:8000/', group: 'Rocksteady', color: '#6c63ff' },
+    { id: 'rs-p3',   name: 'Portal 3 — Rocksteady', url: 'http://g001-portal3-rocksteady:8000/', group: 'Rocksteady', color: '#6c63ff' },
+    { id: 'bb-p1',   name: 'Portal 1 — Bebop',      url: 'http://g001-portal1-bebop:8000/',      group: 'Bebop',      color: '#22c55e' },
+    { id: 'bb-p2',   name: 'Portal 2 — Bebop',      url: 'http://g001-portal2-bebop:8000/',      group: 'Bebop',      color: '#22c55e' },
+    { id: 'bb-p3',   name: 'Portal 3 — Bebop',      url: 'http://g001-portal3-bebop:8000/',      group: 'Bebop',      color: '#22c55e' },
+  ];
+
+  // ── State ────────────────────────────────────────────────
+  let openTiles = []; // array of site ids in display order
+  let currentLayout = 'grid';
+  let tileSizes = {}; // { siteId: colSpan }
+
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => document.querySelectorAll(s);
+
+  const dropdownToggle = $('#dropdownToggle');
+  const dropdownMenu = $('#dropdownMenu');
+  const tilesContainer = $('#tilesContainer');
+  const emptyState = $('#emptyState');
+  const toastContainer = $('#toastContainer');
+
+  // ── Persist state ────────────────────────────────────────
+  function saveState() {
+    localStorage.setItem('gsc-tiles', JSON.stringify(openTiles));
+    localStorage.setItem('gsc-layout', currentLayout);
+    localStorage.setItem('gsc-sizes', JSON.stringify(tileSizes));
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem('gsc-tiles');
+      if (saved) openTiles = JSON.parse(saved);
+      const layout = localStorage.getItem('gsc-layout');
+      if (layout) currentLayout = layout;
+      const sizes = localStorage.getItem('gsc-sizes');
+      if (sizes) tileSizes = JSON.parse(sizes);
+    } catch(e) {}
+  }
+
+  function getTileWidth(id) {
+    return tileSizes[id] || 1;
+  }
+
+  function setTileWidth(id, cols) {
+    tileSizes[id] = cols;
+    saveState();
+  }
+
+  // ── Toast ────────────────────────────────────────────────
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    toastContainer.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+
+  // ── Dropdown ─────────────────────────────────────────────
+  function buildDropdown() {
+    const groups = {};
+    SITES.forEach(s => {
+      if (!groups[s.group]) groups[s.group] = [];
+      groups[s.group].push(s);
+    });
+
+    let html = '';
+    Object.entries(groups).forEach(([group, sites], gi) => {
+      if (gi > 0) html += '<div class="dropdown-divider"></div>';
+      html += `<div class="dropdown-group-label">${group}</div>`;
+      sites.forEach(s => {
+        const isOpen = openTiles.includes(s.id);
+        html += `
+          <button class="dropdown-item ${isOpen ? 'active' : ''}" data-site-id="${s.id}">
+            <span class="dot" style="${isOpen ? `background:${s.color}` : ''}"></span>
+            <span class="label">${s.name}</span>
+            <span class="badge">${isOpen ? 'Open' : 'Add'}</span>
+          </button>`;
+      });
+    });
+
+    html += `
+      <div class="dropdown-footer">
+        <button class="btn-open-all" id="btnOpenAll">Open All</button>
+        <button class="btn-close-all" id="btnCloseAll">Close All</button>
+      </div>`;
+
+    dropdownMenu.innerHTML = html;
+
+    // Bind items
+    dropdownMenu.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const id = item.dataset.siteId;
+        toggleSite(id);
+      });
+    });
+
+    document.getElementById('btnOpenAll').addEventListener('click', () => {
+      SITES.forEach(s => { if (!openTiles.includes(s.id)) openTiles.push(s.id); });
+      renderTiles();
+      buildDropdown();
+      saveState();
+      toast('All sites opened');
+    });
+
+    document.getElementById('btnCloseAll').addEventListener('click', () => {
+      openTiles = [];
+      renderTiles();
+      buildDropdown();
+      saveState();
+      toast('All sites closed');
+    });
+  }
+
+  function toggleDropdown() {
+    const open = dropdownMenu.classList.toggle('open');
+    dropdownToggle.classList.toggle('open', open);
+  }
+
+  dropdownToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.dropdown-wrap')) {
+      dropdownMenu.classList.remove('open');
+      dropdownToggle.classList.remove('open');
+    }
+  });
+
+  // ── Toggle site ──────────────────────────────────────────
+  function toggleSite(id) {
+    const idx = openTiles.indexOf(id);
+    if (idx !== -1) {
+      openTiles.splice(idx, 1);
+      const site = SITES.find(s => s.id === id);
+      toast(`Closed ${site.name}`);
+    } else {
+      openTiles.push(id);
+      const site = SITES.find(s => s.id === id);
+      toast(`Opened ${site.name}`);
+    }
+    renderTiles();
+    buildDropdown();
+    saveState();
+  }
+
+  // ── Render tiles ─────────────────────────────────────────
+  function renderTiles() {
+    if (openTiles.length === 0) {
+      emptyState.style.display = 'flex';
+      tilesContainer.style.display = 'none';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    tilesContainer.style.display = 'grid';
+
+    // Preserve existing iframes where possible
+    const existingTiles = {};
+    tilesContainer.querySelectorAll('.tile').forEach(tile => {
+      existingTiles[tile.dataset.siteId] = tile;
+    });
+
+    // Remove tiles no longer open
+    Object.keys(existingTiles).forEach(id => {
+      if (!openTiles.includes(id)) {
+        existingTiles[id].remove();
+        delete existingTiles[id];
+      }
+    });
+
+    // Reorder / create
+    openTiles.forEach(id => {
+      const site = SITES.find(s => s.id === id);
+      if (!site) return;
+
+      if (existingTiles[id]) {
+        tilesContainer.appendChild(existingTiles[id]);
+      } else {
+        const tile = createTile(site);
+        tilesContainer.appendChild(tile);
+      }
+    });
+  }
+
+  function applyTileWidth(tile, siteId) {
+    const cols = getTileWidth(siteId);
+    tile.dataset.colSpan = cols;
+    const badge = tile.querySelector('.tile-width-badge');
+    if (badge) {
+      if (cols <= 1) {
+        badge.classList.add('default');
+        badge.textContent = '';
+      } else {
+        badge.classList.remove('default');
+        badge.textContent = `${cols} col`;
+      }
+    }
+  }
+
+  function createTile(site) {
+    const tile = document.createElement('div');
+    tile.className = 'tile tile-enter';
+    tile.dataset.siteId = site.id;
+    tile.draggable = true;
+
+    const cols = getTileWidth(site.id);
+    const widthLabel = cols > 1 ? `${cols} col` : '';
+    const widthClass = cols > 1 ? 'tile-width-badge' : 'tile-width-badge default';
+
+    tile.innerHTML = `
+      <div class="tile-header">
+        <span class="tile-color-dot" style="background:${site.color}"></span>
+        <span class="tile-title">${site.name}</span>
+        <span class="${widthClass}">${widthLabel}</span>
+        <span class="tile-url">${site.url}</span>
+        <div class="tile-actions">
+          <button class="tile-action-btn refresh-btn" title="Refresh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </button>
+          <button class="tile-action-btn maximize-btn" title="Maximize">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+              <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+            </svg>
+          </button>
+          <button class="tile-action-btn open-ext-btn" title="Open in new tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </button>
+          <button class="tile-action-btn close-btn" title="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="tile-body">
+        <div class="iframe-overlay"></div>
+        <div class="tile-loading"><div class="spinner"></div> Loading&hellip;</div>
+        <iframe src="${site.url}" title="${site.name}" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen"></iframe>
+      </div>
+      <div class="tile-resize-edge" title="Drag to widen"></div>`;
+
+    // Apply saved width
+    applyTileWidth(tile, site.id);
+
+    // Iframe load handler
+    const iframe = tile.querySelector('iframe');
+    const loading = tile.querySelector('.tile-loading');
+    iframe.addEventListener('load', () => loading.style.display = 'none');
+    setTimeout(() => loading.style.display = 'none', 15000); // fallback hide after 15s
+
+    // Actions
+    tile.querySelector('.refresh-btn').addEventListener('click', () => {
+      loading.style.display = 'flex';
+      iframe.src = iframe.src;
+    });
+
+    tile.querySelector('.maximize-btn').addEventListener('click', () => {
+      tile.classList.toggle('maximized');
+    });
+
+    tile.querySelector('.open-ext-btn').addEventListener('click', () => {
+      window.open(site.url, '_blank');
+    });
+
+    tile.querySelector('.close-btn').addEventListener('click', () => {
+      toggleSite(site.id);
+    });
+
+    // Drag-and-drop (desktop)
+    tile.addEventListener('dragstart', handleDragStart);
+    tile.addEventListener('dragend', handleDragEnd);
+    tile.addEventListener('dragover', handleDragOver);
+    tile.addEventListener('dragenter', handleDragEnter);
+    tile.addEventListener('dragleave', handleDragLeave);
+    tile.addEventListener('drop', handleDrop);
+
+    // Touch drag (mobile) — on header
+    const header = tile.querySelector('.tile-header');
+    header.addEventListener('touchstart', handleTouchStart, { passive: false });
+    header.addEventListener('touchmove', handleTouchMove, { passive: false });
+    header.addEventListener('touchend', handleTouchEnd);
+
+    // Resize edge (desktop + mobile)
+    const resizeEdge = tile.querySelector('.tile-resize-edge');
+    resizeEdge.addEventListener('mousedown', (e) => startResize(e, tile, site.id));
+    resizeEdge.addEventListener('touchstart', (e) => startResizeTouch(e, tile, site.id), { passive: false });
+
+    return tile;
+  }
+
+  // ── Drag & Drop (desktop) ───────────────────────────────
+  let dragSrcId = null;
+
+  function handleDragStart(e) {
+    dragSrcId = this.dataset.siteId;
+    this.classList.add('dragging');
+    tilesContainer.classList.add('is-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragSrcId);
+  }
+
+  function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    tilesContainer.classList.remove('is-dragging');
+    $$('.tile.drag-over').forEach(t => t.classList.remove('drag-over'));
+    dragSrcId = null;
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }
+
+  function handleDragEnter(e) {
+    e.preventDefault();
+    const tile = e.target.closest('.tile');
+    if (tile && tile.dataset.siteId !== dragSrcId) {
+      tile.classList.add('drag-over');
+    }
+  }
+
+  function handleDragLeave(e) {
+    const tile = e.target.closest('.tile');
+    if (tile) {
+      const rect = tile.getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        tile.classList.remove('drag-over');
+      }
+    }
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    const targetTile = e.target.closest('.tile');
+    if (!targetTile) return;
+    const targetId = targetTile.dataset.siteId;
+    targetTile.classList.remove('drag-over');
+    if (dragSrcId && dragSrcId !== targetId) {
+      reorderTiles(dragSrcId, targetId);
+    }
+  }
+
+  function reorderTiles(srcId, targetId) {
+    const srcIdx = openTiles.indexOf(srcId);
+    const targetIdx = openTiles.indexOf(targetId);
+    if (srcIdx === -1 || targetIdx === -1) return;
+    openTiles.splice(srcIdx, 1);
+    openTiles.splice(targetIdx, 0, srcId);
+    renderTiles();
+    saveState();
+  }
+
+  // ── Touch Drag (mobile) ─────────────────────────────────
+  let touchDragTile = null;
+  let touchClone = null;
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let touchMoved = false;
+
+  function handleTouchStart(e) {
+    const tile = e.target.closest('.tile');
+    if (!tile) return;
+    touchDragTile = tile;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+  }
+
+  function handleTouchMove(e) {
+    if (!touchDragTile) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+
+    if (!touchMoved && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
+      touchMoved = true;
+      touchDragTile.classList.add('dragging');
+      tilesContainer.classList.add('is-dragging');
+    }
+
+    if (!touchMoved) return;
+    e.preventDefault();
+
+    // Find the tile under touch
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+
+    $$('.tile.drag-over').forEach(t => t.classList.remove('drag-over'));
+
+    const elUnder = document.elementFromPoint(touchX, touchY);
+    if (elUnder) {
+      const tileUnder = elUnder.closest('.tile');
+      if (tileUnder && tileUnder !== touchDragTile) {
+        tileUnder.classList.add('drag-over');
+      }
+    }
+  }
+
+  function handleTouchEnd(e) {
+    if (!touchDragTile) return;
+
+    if (touchMoved) {
+      const overTile = document.querySelector('.tile.drag-over');
+      if (overTile) {
+        reorderTiles(touchDragTile.dataset.siteId, overTile.dataset.siteId);
+      }
+    }
+
+    touchDragTile.classList.remove('dragging');
+    tilesContainer.classList.remove('is-dragging');
+    $$('.tile.drag-over').forEach(t => t.classList.remove('drag-over'));
+    touchDragTile = null;
+    touchMoved = false;
+  }
+
+  // ── Resize logic (horizontal only — drag right edge) ────
+  let resizeTile = null;
+  let resizeSiteId = null;
+  let resizeStartX = 0;
+  let resizeStartCols = 1;
+
+  function getGridCols() {
+    const style = getComputedStyle(tilesContainer);
+    return style.gridTemplateColumns.split(' ').length;
+  }
+
+  function getColWidth() {
+    const style = getComputedStyle(tilesContainer);
+    const totalCols = style.gridTemplateColumns.split(' ').length;
+    const gap = parseFloat(style.gap) || 12;
+    const pad = parseFloat(style.paddingLeft) || 16;
+    return (tilesContainer.clientWidth - 2 * pad - (totalCols - 1) * gap) / totalCols;
+  }
+
+  function calcColsFromDrag(dx, startCols) {
+    const colW = getColWidth();
+    const gap = 12;
+    const dCols = Math.round(dx / (colW + gap));
+    const maxCols = getGridCols();
+    return Math.max(1, Math.min(maxCols, startCols + dCols));
+  }
+
+  function updateBadge(tile, cols) {
+    const badge = tile.querySelector('.tile-width-badge');
+    if (!badge) return;
+    if (cols <= 1) {
+      badge.classList.add('default');
+      badge.textContent = '';
+    } else {
+      badge.classList.remove('default');
+      badge.textContent = `${cols} col`;
+    }
+  }
+
+  // Mouse resize
+  function startResize(e, tile, siteId) {
+    e.preventDefault();
+    e.stopPropagation();
+    resizeTile = tile;
+    resizeSiteId = siteId;
+    resizeStartX = e.clientX;
+    resizeStartCols = getTileWidth(siteId);
+
+    tile.classList.add('is-resizing');
+    tilesContainer.classList.add('is-resizing');
+
+    document.addEventListener('mousemove', onResizeMove);
+    document.addEventListener('mouseup', onResizeEnd);
+  }
+
+  function onResizeMove(e) {
+    if (!resizeTile) return;
+    const dx = e.clientX - resizeStartX;
+    const newCols = calcColsFromDrag(dx, resizeStartCols);
+    resizeTile.dataset.colSpan = newCols;
+    updateBadge(resizeTile, newCols);
+  }
+
+  function onResizeEnd(e) {
+    if (!resizeTile) return;
+    const dx = e.clientX - resizeStartX;
+    const newCols = calcColsFromDrag(dx, resizeStartCols);
+
+    setTileWidth(resizeSiteId, newCols);
+    applyTileWidth(resizeTile, resizeSiteId);
+
+    resizeTile.classList.remove('is-resizing');
+    tilesContainer.classList.remove('is-resizing');
+    document.removeEventListener('mousemove', onResizeMove);
+    document.removeEventListener('mouseup', onResizeEnd);
+
+    if (newCols !== resizeStartCols) {
+      toast(`Width: ${newCols} column${newCols > 1 ? 's' : ''}`);
+    }
+
+    resizeTile = null;
+    resizeSiteId = null;
+  }
+
+  // Touch resize
+  function startResizeTouch(e, tile, siteId) {
+    e.preventDefault();
+    e.stopPropagation();
+    resizeTile = tile;
+    resizeSiteId = siteId;
+    resizeStartX = e.touches[0].clientX;
+    resizeStartCols = getTileWidth(siteId);
+
+    tile.classList.add('is-resizing');
+    tilesContainer.classList.add('is-resizing');
+
+    document.addEventListener('touchmove', onResizeTouchMove, { passive: false });
+    document.addEventListener('touchend', onResizeTouchEnd);
+  }
+
+  function onResizeTouchMove(e) {
+    if (!resizeTile) return;
+    e.preventDefault();
+    const dx = e.touches[0].clientX - resizeStartX;
+    const newCols = calcColsFromDrag(dx, resizeStartCols);
+    resizeTile.dataset.colSpan = newCols;
+    updateBadge(resizeTile, newCols);
+  }
+
+  function onResizeTouchEnd(e) {
+    if (!resizeTile) return;
+    const curCols = parseInt(resizeTile.dataset.colSpan) || 1;
+
+    setTileWidth(resizeSiteId, curCols);
+    applyTileWidth(resizeTile, resizeSiteId);
+
+    resizeTile.classList.remove('is-resizing');
+    tilesContainer.classList.remove('is-resizing');
+    document.removeEventListener('touchmove', onResizeTouchMove);
+    document.removeEventListener('touchend', onResizeTouchEnd);
+
+    if (curCols !== resizeStartCols) {
+      toast(`Width: ${curCols} column${curCols > 1 ? 's' : ''}`);
+    }
+
+    resizeTile = null;
+    resizeSiteId = null;
+  }
+
+  // ── Layout switching ─────────────────────────────────────
+  function setLayout(layout) {
+    currentLayout = layout;
+    tilesContainer.className = `tiles-container layout-${layout}`;
+    $$('.icon-btn[data-layout]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.layout === layout);
+    });
+    saveState();
+  }
+
+  $$('.icon-btn[data-layout]').forEach(btn => {
+    btn.addEventListener('click', () => setLayout(btn.dataset.layout));
+  });
+
+  // ── Keyboard shortcut: Escape to un-maximize ─────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      $$('.tile.maximized').forEach(t => t.classList.remove('maximized'));
+    }
+  });
+
+  // ── Clippy guide ───────────────────────────────────────────
+  const clippyBtn = $('#clippyBtn');
+  const guideOverlay = $('#guideOverlay');
+  const guideClose = $('#guideClose');
+
+  clippyBtn.addEventListener('click', () => {
+    guideOverlay.classList.add('open');
+  });
+
+  guideClose.addEventListener('click', () => {
+    guideOverlay.classList.remove('open');
+  });
+
+  guideOverlay.addEventListener('click', (e) => {
+    if (e.target === guideOverlay) guideOverlay.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && guideOverlay.classList.contains('open')) {
+      guideOverlay.classList.remove('open');
+    }
+  });
+
+  // ── Init ─────────────────────────────────────────────────
+  loadState();
+  setLayout(currentLayout);
+  buildDropdown();
+  renderTiles();
+})();
+</script>
+
+</body>
+</html>
