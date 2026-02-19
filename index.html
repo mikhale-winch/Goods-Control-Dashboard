@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Goods System Control</title>
+  <link rel="icon" type="image/png" href="favicon.png?v=4" sizes="64x64" />
   <style>
     :root {
       --bg-primary: #0f1117;
@@ -64,6 +65,14 @@
     .topbar-logo svg {
       width: 28px;
       height: 28px;
+      flex-shrink: 0;
+    }
+
+    .topbar-logo img {
+      width: 84px !important;
+      height: 84px !important;
+      border-radius: 14px;
+      object-fit: cover;
       flex-shrink: 0;
     }
 
@@ -828,12 +837,7 @@
 <!-- ── Topbar ──────────────────────────────────────────────── -->
 <header class="topbar">
   <div class="topbar-logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1"/>
-      <rect x="14" y="3" width="7" height="7" rx="1"/>
-      <rect x="3" y="14" width="7" height="7" rx="1"/>
-      <rect x="14" y="14" width="7" height="7" rx="1"/>
-    </svg>
+    <img src="icon.png" alt="Goods System Control" />
     <span>Goods System Control</span>
   </div>
 
@@ -991,6 +995,7 @@
     { id: 'bb-p1',   name: 'Portal 1 — Bebop',      url: 'http://g001-portal1-bebop:8000/',      group: 'Bebop',      color: '#22c55e' },
     { id: 'bb-p2',   name: 'Portal 2 — Bebop',      url: 'http://g001-portal2-bebop:8000/',      group: 'Bebop',      color: '#22c55e' },
     { id: 'bb-p3',   name: 'Portal 3 — Bebop',      url: 'http://g001-portal3-bebop:8000/',      group: 'Bebop',      color: '#22c55e' },
+    { id: 'switchyard', name: 'Switchyard', url: 'https://www.switchyard.run/#', group: 'Switchyard', color: '#e74c3c' },
   ];
 
   // ── State ────────────────────────────────────────────────
